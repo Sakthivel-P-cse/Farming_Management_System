@@ -1,110 +1,96 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-
-const dealersData = [
-  {
-    id: 1,
-    name: 'Sharma Agro Dealers',
-    contact: '9876541111',
-    type: 'Seller',
-    address: 'Market Road, Rampur',
-    items: ['Tractor', 'Plough', 'Seeds'],
-    rating: 4.7
-  },
-  {
-    id: 2,
-    name: 'Patel Equipment Rentals',
-    contact: '9876542222',
-    type: 'Rent Giver',
-    address: 'Station Road, Rampur',
-    items: ['Tractor', 'Harvester', 'Sprayer'],
-    rating: 4.5
-  },
-  {
-    id: 3,
-    name: 'Singh Farm Supplies',
-    contact: '9876543333',
-    type: 'Seller',
-    address: 'Main Bazaar, Rampur',
-    items: ['Fertilizer', 'Seeds', 'Tools'],
-    rating: 4.2
-  },
-  {
-    id: 4,
-    name: 'Yadav Rental Services',
-    contact: '9876544444',
-    type: 'Rent Giver',
-    address: 'Near Bus Stand, Rampur',
-    items: ['Plough', 'Seeder', 'Tractor'],
-    rating: 4.6
-  },
-  {
-    id: 5,
-    name: 'Kumar Agricultural Store',
-    contact: '9876545555',
-    type: 'Seller',
-    address: 'Old City Road, Rampur',
-    items: ['Pesticides', 'Irrigation', 'Hand Tools'],
-    rating: 4.3
-  },
-  {
-    id: 6,
-    name: 'Gupta Heavy Machinery Rent',
-    contact: '9876546666',
-    type: 'Rent Giver',
-    address: 'Industrial Area, Rampur',
-    items: ['Bulldozer', 'Excavator', 'Crane'],
-    rating: 4.8
-  },
-  {
-    id: 7,
-    name: 'Verma Seeds & Fertilizer',
-    contact: '9876547777',
-    type: 'Seller',
-    address: 'Agricultural Market, Rampur',
-    items: ['Hybrid Seeds', 'Bio-fertilizers', 'Growth Enhancers'],
-    rating: 4.4
-  },
-  {
-    id: 8,
-    name: 'Modern Farm Equipment Rental',
-    contact: '9876548888',
-    type: 'Rent Giver',
-    address: 'Highway Road, Rampur',
-    items: ['Combine Harvester', 'Thresher', 'Power Tiller'],
-    rating: 4.7
-  }
-];
+import { getPendingRequestsByType } from '../../services/pendingRequestService';
+import { doc, updateDoc } from 'firebase/firestore';
+import { db } from '../../config/firebase';
 
 const DealersList = () => {
+  const [dealersData] = useState([
+    { id: 1, name: 'Sharma Agro Dealers', contact: '9876541111', type: 'Seller', address: 'Market Road, Rampur', items: ['Tractor', 'Plough', 'Seeds'], rating: 4.7 },
+    { id: 2, name: 'Patel Equipment Rentals', contact: '9876542222', type: 'Rent Giver', address: 'Station Road, Rampur', items: ['Tractor', 'Harvester', 'Sprayer'], rating: 4.5 },
+    { id: 3, name: 'Singh Farm Supplies', contact: '9876543333', type: 'Seller', address: 'Main Bazaar, Rampur', items: ['Fertilizer', 'Seeds', 'Tools'], rating: 4.2 },
+    { id: 4, name: 'Yadav Rental Services', contact: '9876544444', type: 'Rent Giver', address: 'Near Bus Stand, Rampur', items: ['Plough', 'Seeder', 'Tractor'], rating: 4.6 },
+    { id: 5, name: 'Kumar Agricultural Store', contact: '9876545555', type: 'Seller', address: 'Old City Road, Rampur', items: ['Pesticides', 'Irrigation', 'Hand Tools'], rating: 4.3 },
+    { id: 6, name: 'Gupta Heavy Machinery Rent', contact: '9876546666', type: 'Rent Giver', address: 'Industrial Area, Rampur', items: ['Bulldozer', 'Excavator', 'Crane'], rating: 4.8 },
+    { id: 7, name: 'Verma Seeds & Fertilizer', contact: '9876547777', type: 'Seller', address: 'Agricultural Market, Rampur', items: ['Hybrid Seeds', 'Bio-fertilizers', 'Growth Enhancers'], rating: 4.4 },
+    { id: 8, name: 'Modern Farm Equipment Rental', contact: '9876548888', type: 'Rent Giver', address: 'Highway Road, Rampur', items: ['Combine Harvester', 'Thresher', 'Power Tiller'], rating: 4.7 },
+    { id: 9, name: 'Reddy Agri Solutions', contact: '9876548899', type: 'Seller', address: 'Temple Street, Rampur', items: ['Drip Irrigation', 'Organic Manure', 'Soil Testing Kits'], rating: 4.6 },
+    { id: 10, name: 'Chopra Farm Rentals', contact: '9876548900', type: 'Rent Giver', address: 'Railway Colony, Rampur', items: ['Rotavator', 'Leveller', 'Mulcher'], rating: 4.3 },
+    { id: 11, name: 'Mehta Pesticides & Co', contact: '9876548911', type: 'Seller', address: 'Gandhi Nagar, Rampur', items: ['Insecticides', 'Fungicides', 'Herbicides'], rating: 4.1 },
+    { id: 12, name: 'Bhandari Equipment Hub', contact: '9876548922', type: 'Rent Giver', address: 'Sector 5, Rampur', items: ['Seed Drill', 'Cultivator', 'Water Pump'], rating: 4.9 },
+    { id: 13, name: 'Green Valley Nursery', contact: '9876548933', type: 'Seller', address: 'Farm Road, Rampur', items: ['Fruit Plants', 'Flower Seeds', 'Vegetable Seedlings'], rating: 4.5 },
+    { id: 14, name: 'Jain Machinery Rentals', contact: '9876548944', type: 'Rent Giver', address: 'Industrial Estate, Rampur', items: ['Loader', 'Dozer', 'Mini Tractor'], rating: 4.4 }
+  ]);
+  const [pendingRequests, setPendingRequests] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [filterType, setFilterType] = useState('Rent Giver');
   const [showPendingRequests, setShowPendingRequests] = useState(false);
   const navigate = useNavigate();
 
-  // Mock pending dealer registration requests from mobile app
-  const pendingRequests = [
-    {
-      id: 'dealer_req_001',
-      name: 'Modern Agri Equipment',
-      contact: '9876512345',
-      type: 'Seller',
-      address: 'New Market Road, Rampur',
-      items: ['Tractor', 'Cultivator', 'Seed Drill'],
-      requestDate: '2024-12-08',
-      status: 'Pending'
-    },
-    {
-      id: 'dealer_req_002',
-      name: 'Ramesh Rental Services',
-      contact: '9876523456',
-      type: 'Rent Giver',
-      address: 'Gandhi Chowk, Rampur',
-      items: ['Harvester', 'Tractor', 'Pump'],
-      requestDate: '2024-12-07',
-      status: 'Pending'
+  // Fetch pending requests from Firebase
+  useEffect(() => {
+    const fetchPendingRequests = async () => {
+      try {
+        setLoading(true);
+        const requests = await getPendingRequestsByType('dealer');
+        setPendingRequests(requests);
+      } catch (error) {
+        console.error('Error fetching pending requests:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchPendingRequests();
+  }, []);
+
+  // Prevent background scroll when modal is open
+  useEffect(() => {
+    if (showPendingRequests) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
     }
-  ];
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [showPendingRequests]);
+
+  // Handle approve request
+  const handleApproveRequest = async (requestId) => {
+    try {
+      const docRef = doc(db, 'users', requestId);
+      await updateDoc(docRef, {
+        'profile.approvalStatus': 'approved',
+        updatedAt: new Date().toISOString()
+      });
+      // Refresh pending requests
+      const requests = await getPendingRequestsByType('dealer');
+      setPendingRequests(requests);
+      alert('Dealer request approved successfully!');
+    } catch (error) {
+      console.error('Error approving request:', error);
+      alert('Error approving request. Please try again.');
+    }
+  };
+
+  // Handle reject request
+  const handleRejectRequest = async (requestId) => {
+    try {
+      const docRef = doc(db, 'users', requestId);
+      await updateDoc(docRef, {
+        'profile.approvalStatus': 'rejected',
+        updatedAt: new Date().toISOString()
+      });
+      // Refresh pending requests
+      const requests = await getPendingRequestsByType('dealer');
+      setPendingRequests(requests);
+      alert('Dealer request rejected.');
+    } catch (error) {
+      console.error('Error rejecting request:', error);
+      alert('Error rejecting request. Please try again.');
+    }
+  };
 
   const handleDealerClick = (dealer) => {
     navigate('/dealer-detail', { state: { dealer } });
@@ -115,33 +101,46 @@ const DealersList = () => {
       ? dealersData
       : dealersData.filter((dealer) => dealer.type === filterType);
 
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-200 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-green-600 mx-auto mb-4"></div>
+          <p className="text-gray-600 text-lg">Loading dealers...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
       <div className="min-h-screen bg-gray-200 p-8">
+        {/* Header Section */}
+        <div className="flex items-center justify-between mb-8">
+          <div className="flex items-center gap-4">
+            <button
+              onClick={() => navigate('/overview')}
+              className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+              title="Back to Overview"
+            >
+              <svg className="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+              </svg>
+            </button>
+            <h2 className="text-responsive-3xl font-bold text-gray-900">Dealers List - Rampur Village</h2>
+          </div>
+          <button
+            onClick={() => setShowPendingRequests(true)}
+            className="px-6 py-3 bg-orange-600 text-white rounded-lg font-semibold hover:bg-orange-700 transition-colors flex items-center gap-2"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            Pending Requests ({pendingRequests.length})
+          </button>
+        </div>
+
         {/* Filter Section */}
         <div className="bg-white rounded-lg shadow-md p-6 mb-8 border border-gray-300">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-4">
-              <button
-                onClick={() => navigate('/overview')}
-                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-                title="Back to Overview"
-              >
-                <svg className="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-                </svg>
-              </button>
-              <h2 className="text-responsive-3xl font-bold text-gray-800">Dealers List - Rampur Village</h2>
-            </div>
-            <button
-              onClick={() => setShowPendingRequests(true)}
-              className="px-6 py-3 bg-orange-600 text-white rounded-lg font-semibold hover:bg-orange-700 transition-colors flex items-center gap-2"
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              Pending Requests ({pendingRequests.length})
-            </button>
-          </div>
           <div className="flex gap-4 flex-wrap">
             <button
               className={`px-6 py-2 rounded-lg font-semibold text-responsive-base transition-colors duration-150 border ${
@@ -240,8 +239,8 @@ const DealersList = () => {
 
         {/* Pending Dealer Registration Requests Modal */}
         {showPendingRequests && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+          <div className="fixed top-4 right-4 z-50 w-[600px] max-h-[calc(100vh-2rem)] flex flex-col">
+            <div className="bg-white rounded-lg shadow-2xl border-2 border-gray-300 flex flex-col max-h-full overflow-hidden">
               <div className="sticky top-0 bg-white border-b border-gray-200 p-6 flex items-center justify-between">
                 <div>
                   <h2 className="text-2xl font-bold text-gray-800">Pending Dealer Registration Requests</h2>
@@ -257,7 +256,7 @@ const DealersList = () => {
                 </button>
               </div>
               
-              <div className="p-6">
+              <div className="flex-1 overflow-y-auto p-6">
                 {pendingRequests.length === 0 ? (
                   <div className="text-center py-12">
                     <svg className="w-16 h-16 mx-auto text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -312,7 +311,7 @@ const DealersList = () => {
                           <button
                             onClick={() => {
                               if (confirm(`Approve registration for ${request.name}?`)) {
-                                alert('API integration pending. Approval will be sent to backend and dealer will be notified via mobile app.');
+                                handleApproveRequest(request.id);
                               }
                             }}
                             className="flex-1 py-2 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 transition-colors flex items-center justify-center gap-2"
@@ -325,7 +324,7 @@ const DealersList = () => {
                           <button
                             onClick={() => {
                               if (confirm(`Reject registration for ${request.name}?`)) {
-                                alert('API integration pending. Rejection will be sent to backend and dealer will be notified via mobile app.');
+                                handleRejectRequest(request.id);
                               }
                             }}
                             className="flex-1 py-2 bg-red-600 text-white rounded-lg font-semibold hover:bg-red-700 transition-colors flex items-center justify-center gap-2"

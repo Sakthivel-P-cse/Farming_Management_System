@@ -29,6 +29,17 @@ const DealerDetail = () => {
     <div className="bg-gray-300 rounded-xl shadow-lg min-h-screen overflow-hidden">
       {/* Header Section */}
       <div className="bg-gray-200 text-green-700 p-8">
+        <div className="flex items-center gap-4 mb-6">
+          <button
+            onClick={() => navigate(-1)}
+            className="p-2 hover:bg-gray-300 rounded-lg transition-colors"
+            title="Back"
+          >
+            <svg className="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+          </button>
+        </div>
         <div className="flex items-center justify-between">
           <div className="flex items-center">
             <div className="w-20 h-20 bg-white bg-opacity-20 rounded-full flex items-center justify-center text-responsive-3xl font-bold mr-6">

@@ -53,6 +53,17 @@ const FarmerDetail = () => {
 
   return (
     <div className="bg-gray-200 rounded-xl shadow-lg min-h-screen overflow-hidden">
+      <div className="flex items-center justify-between px-8 pt-6 pb-2">
+        <button
+          type="button"
+          onClick={() => navigate(-1)}
+          className="inline-flex items-center gap-2 bg-white text-green-700 border border-green-500 px-4 py-2 rounded-lg shadow-sm hover:bg-green-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-green-600 text-responsive-base"
+          aria-label="Go back"
+        >
+          <span className="text-lg">←</span>
+          <span>Back</span>
+        </button>
+      </div>
       {/* Header Section */}
       <div className="bg-gray-100 text-green-700 p-8 border-b border-gray-300">
         <div className="flex items-center justify-between">
@@ -69,9 +80,6 @@ const FarmerDetail = () => {
           <div className="text-right leading-relaxed">
             <p className="text-green-700 text-responsive-base">
               <span className="font-semibold">Address:</span> {farmer.address}
-            </p>
-            <p className="text-green-700 text-responsive-base">
-              <span className="font-semibold">Experience:</span> {farmer.experience}
             </p>
             <span
               className={`inline-block px-4 py-2 rounded-full text-responsive-sm font-medium mt-2 ${
@@ -162,12 +170,6 @@ const FarmerDetail = () => {
                   <span className="font-semibold text-gray-800 text-lg w-1/2">Farming Type:</span>
                   <span className="text-gray-800 border border-gray-300 px-3 py-2 rounded bg-gray-50 text-base w-1/2 text-right">
                     {farmer.farmingType}
-                  </span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="font-semibold text-gray-800 text-lg w-1/2">Experience:</span>
-                  <span className="text-gray-800 border border-gray-300 px-3 py-2 rounded bg-gray-50 text-base w-1/2 text-right">
-                    {farmer.experience}
                   </span>
                 </div>
               </div>

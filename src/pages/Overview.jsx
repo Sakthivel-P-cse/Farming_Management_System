@@ -66,15 +66,6 @@ const Overview = () => {
     },
   ];
 
-  // Recent activity
-  const recentActivity = [
-    { action: 'New merchant added', time: '2 hours ago', type: 'merchant' },
-    { action: 'Crop stock updated in godown', time: '4 hours ago', type: 'godown' },
-    { action: 'Issue resolved: Irrigation pump', time: '6 hours ago', type: 'issue' },
-    { action: 'Weather alert: Heavy rainfall', time: '1 day ago', type: 'disaster' },
-    { action: 'New buying rate from Agarwal Traders', time: '1 day ago', type: 'merchant' },
-  ];
-
   return (
     <div className="min-h-screen bg-gray-200 p-8">
       {/* Header */}
@@ -102,25 +93,7 @@ const Overview = () => {
         ))}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Recent Activity */}
-        <div className="lg:col-span-2 bg-white rounded-lg shadow-md p-6">
-          <h2 className="text-2xl font-bold text-gray-800 mb-4">Recent Activity</h2>
-          <div className="space-y-4">
-            {recentActivity.map((activity, index) => (
-              <div
-                key={index}
-                className="flex items-start gap-4 p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
-              >
-                <div className="flex-1">
-                  <p className="font-medium text-gray-800">{activity.action}</p>
-                  <p className="text-sm text-gray-500 mt-1">{activity.time}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
+      <div className="grid grid-cols-1 lg:grid-cols-1 gap-8">
         {/* System Status */}
         <div className="bg-white rounded-lg shadow-md p-6">
           <h2 className="text-2xl font-bold text-gray-800 mb-4">System Status</h2>

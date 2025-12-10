@@ -5,10 +5,7 @@ const Merchants = () => {
   const [filterCrop, setFilterCrop] = useState('all');
   const [sortBy, setSortBy] = useState('name');
   const [showAddModal, setShowAddModal] = useState(false);
-  const navigate = useNavigate();
-
-  // Mock data for merchants
-  const merchantsData = [
+  const [merchantsData, setMerchantsData] = useState([
     {
       id: 1,
       name: 'Agarwal Traders',
@@ -69,10 +66,119 @@ const Merchants = () => {
       location: 'Village Road, Block C',
       rating: 4.2,
     },
-  ];
+  ]);
 
-  // Get all unique crops
-  const allCrops = [...new Set(merchantsData.flatMap((m) => m.crops))];
+  const [formData, setFormData] = useState({
+    name: '',
+    crops: [],
+    contact: '',
+    location: '',
+    rates: {},
+    quantity: {},
+  });
+
+  const navigate = useNavigate();
+
+  // Handle form input changes
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({
+      ...formData,
+      [name]: value,
+    });
+  };
+
+  // Handle crop selection
+  const handleCropToggle = (crop) => {
+    const updatedCrops = formData.crops.includes(crop)
+      ? formData.crops.filter(c => c !== crop)
+      : [...formData.crops, crop];
+    setFormData({
+      ...formData,
+      crops: updatedCrops,
+      rates: {},
+      quantity: {},
+    });
+  };
+
+  // Handle rate input
+  const handleRateChange = (crop, value) => {
+    setFormData({
+      ...formData,
+      rates: {
+        ...formData.rates,
+        [crop]: parseFloat(value) || 0,
+      },
+    });
+  };
+
+  // Handle quantity input
+  const handleQuantityChange = (crop, value) => {
+    setFormData({
+      ...formData,
+      quantity: {
+        ...formData.quantity,
+        [crop]: parseFloat(value) || 0,
+      },
+    });
+  };
+
+  // Handle form submission
+  const handleSubmit = (e) => {
+    e.preventDefault();
+
+    // Validation
+    if (!formData.name.trim()) {
+      alert('Please enter merchant name');
+      return;
+    }
+    if (formData.crops.length === 0) {
+      alert('Please select at least one crop');
+      return;
+    }
+    if (!formData.contact.trim()) {
+      alert('Please enter contact information');
+      return;
+    }
+    if (!formData.location.trim()) {
+      alert('Please enter location');
+      return;
+    }
+
+    // Check if all crops have rates and quantities
+    const missingData = formData.crops.some(
+      crop => !formData.rates[crop] || !formData.quantity[crop]
+    );
+    if (missingData) {
+      alert('Please enter rates and quantities for all selected crops');
+      return;
+    }
+
+    // Create new merchant object
+    const newMerchant = {
+      id: Math.max(...merchantsData.map(m => m.id), 0) + 1,
+      ...formData,
+      rating: 4.5, // Default rating for new merchants
+    };
+
+    // Add to merchants list
+    setMerchantsData([...merchantsData, newMerchant]);
+
+    // Reset form and close modal
+    setFormData({
+      name: '',
+      crops: [],
+      contact: '',
+      location: '',
+      rates: {},
+      quantity: {},
+    });
+    setShowAddModal(false);
+    alert('Merchant added successfully!');
+  };
+
+  // Available crops
+  const availableCrops = ['Rice', 'Wheat', 'Maize', 'Cotton', 'Soybean', 'Sugarcane'];
 
   // Filter merchants
   const filteredMerchants = merchantsData.filter((merchant) => {
@@ -145,67 +251,6 @@ const Merchants = () => {
         </button>
       </div>
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-        <div className="bg-white rounded-lg shadow-md p-6 border-l-4 border-green-500">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-gray-600 text-sm mb-1 font-semibold">Total Merchants</p>
-              <p className="text-3xl font-bold text-gray-800">{merchantsData.length}</p>
-            </div>
-            <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
-              <svg className="w-6 h-6 text-green-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-              </svg>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white rounded-lg shadow-md p-6 border-l-4 border-green-500">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-gray-600 text-sm mb-1 font-semibold">Crops Available</p>
-              <p className="text-3xl font-bold text-gray-800">{allCrops.length}</p>
-            </div>
-            <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
-              <svg className="w-6 h-6 text-green-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
-              </svg>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white rounded-lg shadow-md p-6 border-l-4 border-green-500">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-gray-600 text-sm mb-1 font-semibold">Avg Rating</p>
-              <p className="text-3xl font-bold text-gray-800">
-                {(merchantsData.reduce((sum, m) => sum + m.rating, 0) / merchantsData.length).toFixed(1)}
-              </p>
-            </div>
-            <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
-              <svg className="w-6 h-6 text-green-700" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-              </svg>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white rounded-lg shadow-md p-6 border-l-4 border-green-500">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-gray-600 text-sm mb-1 font-semibold">Active Today</p>
-              <p className="text-3xl font-bold text-gray-800">{merchantsData.length}</p>
-            </div>
-            <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
-              <svg className="w-6 h-6 text-green-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-            </div>
-          </div>
-        </div>
-      </div>
-
       {/* Filters and Sort */}
       <div className="bg-white rounded-lg shadow-md p-4 mb-6">
         <div className="flex flex-wrap gap-4 items-center">
@@ -217,7 +262,7 @@ const Merchants = () => {
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
             >
               <option value="all">All Crops</option>
-              {allCrops.map((crop) => (
+              {availableCrops.map((crop) => (
                 <option key={crop} value={crop}>
                   {crop}
                 </option>
@@ -243,7 +288,7 @@ const Merchants = () => {
       {/* Merchants Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {sortedMerchants.map((merchant) => (
-          <div key={merchant.id} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow">
+          <div key={merchant.id} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow flex flex-col h-full">
             {/* Merchant Header */}
             <div className="bg-gradient-to-r from-green-600 to-green-700 text-white p-6">
               <div className="flex items-start justify-between mb-2">
@@ -259,7 +304,7 @@ const Merchants = () => {
             </div>
 
             {/* Merchant Body */}
-            <div className="p-6">
+            <div className="p-6 flex flex-col flex-1">
               {/* Crops Section */}
               <div className="mb-4">
                 <h4 className="text-sm font-semibold text-gray-700 mb-2">Crops Buying:</h4>
@@ -296,7 +341,7 @@ const Merchants = () => {
               </div>
 
               {/* Quantity Section */}
-              <div className="mb-6">
+              <div>
                 <h4 className="text-sm font-semibold text-gray-700 mb-2">Quantity Needed (kg):</h4>
                 <div className="grid grid-cols-2 gap-2">
                   {merchant.crops.map((crop) => (
@@ -325,11 +370,11 @@ const Merchants = () => {
         ))}
       </div>
 
-      {/* Add Merchant Modal (UI Only) */}
+      {/* Add Merchant Modal */}
       {showAddModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
-            <div className="flex items-center justify-between mb-4">
+          <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full p-6 max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between mb-6">
               <h2 className="text-2xl font-bold text-gray-800">Add New Merchant</h2>
               <button
                 onClick={() => setShowAddModal(false)}
@@ -340,15 +385,118 @@ const Merchants = () => {
                 </svg>
               </button>
             </div>
-            <p className="text-gray-600 mb-4">
-              This feature is under development. Backend integration pending.
-            </p>
-            <button
-              onClick={() => setShowAddModal(false)}
-              className="w-full py-2 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 transition-colors"
-            >
-              Close
-            </button>
+
+            <form onSubmit={handleSubmit} className="space-y-4">
+              {/* Merchant Name */}
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Merchant Name *</label>
+                <input
+                  type="text"
+                  name="name"
+                  value={formData.name}
+                  onChange={handleInputChange}
+                  placeholder="Enter merchant name"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                />
+              </div>
+
+              {/* Contact Information */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">Contact *</label>
+                  <input
+                    type="tel"
+                    name="contact"
+                    value={formData.contact}
+                    onChange={handleInputChange}
+                    placeholder="+91 98765 12345"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">Location *</label>
+                  <input
+                    type="text"
+                    name="location"
+                    value={formData.location}
+                    onChange={handleInputChange}
+                    placeholder="Enter location"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  />
+                </div>
+              </div>
+
+              {/* Crops Selection */}
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Select Crops *</label>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                  {availableCrops.map(crop => (
+                    <label key={crop} className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={formData.crops.includes(crop)}
+                        onChange={() => handleCropToggle(crop)}
+                        className="w-4 h-4 rounded border-gray-300"
+                      />
+                      <span className="text-gray-700">{crop}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              {/* Rates and Quantities for Selected Crops */}
+              {formData.crops.length > 0 && (
+                <div className="border-t pt-4">
+                  <h3 className="text-sm font-semibold text-gray-700 mb-3">Set Rates & Quantities</h3>
+                  <div className="space-y-3">
+                    {formData.crops.map(crop => (
+                      <div key={crop} className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <div>
+                          <label className="block text-xs font-semibold text-gray-600 mb-1">{crop} Rate (₹/unit) *</label>
+                          <input
+                            type="number"
+                            value={formData.rates[crop] || ''}
+                            onChange={(e) => handleRateChange(crop, e.target.value)}
+                            placeholder="Enter rate"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-xs font-semibold text-gray-600 mb-1">{crop} Quantity (units) *</label>
+                          <input
+                            type="number"
+                            value={formData.quantity[crop] || ''}
+                            onChange={(e) => handleQuantityChange(crop, e.target.value)}
+                            placeholder="Enter quantity"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                          />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Form Actions */}
+              <div className="flex gap-3 pt-4 border-t">
+                <button
+                  type="button"
+                  onClick={() => setShowAddModal(false)}
+                  className="flex-1 py-2 bg-gray-300 text-gray-800 rounded-lg font-semibold hover:bg-gray-400 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="flex-1 py-2 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 transition-colors flex items-center justify-center gap-2"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                  </svg>
+                  Add Merchant
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}

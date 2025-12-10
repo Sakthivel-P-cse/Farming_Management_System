@@ -30,38 +30,22 @@ const Login = () => {
   // Handle login form submission
   const handleLogin = async (e) => {
     e.preventDefault();
-    
-    // Prefill email based on role selection for demo purposes
-    const loginEmail = selectedRole === 'district' 
-      ? 'district@example.com' 
-      : 'village@example.com';
-    
-    // Use the email from input if provided, otherwise use the demo email
-    const finalEmail = email || loginEmail;
-    
-    // Use provided password or default for demo
-    const finalPassword = password || (selectedRole === 'district' ? 'district123' : 'village123');
-    
-    // Call login method from auth store
-    login(finalEmail, finalPassword);
-  };
-  
-  // Demo login with selected role
-  const handleDemoLogin = (role) => {
-    setSelectedRole(role);
-    const demoEmail = role === 'district' ? 'district@example.com' : 'village@example.com';
-    const demoPassword = role === 'district' ? 'district123' : 'village123';
-    
-    setEmail(demoEmail);
-    setPassword(demoPassword);
-    
-    // Auto-login with demo credentials
-    login(demoEmail, demoPassword);
+    login(email, password);
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-100 to-green-300">
-      <div className="bg-gray-200 shadow-2xl rounded-2xl p-8 w-full max-w-md">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-100 to-green-300 relative">
+      {/* Background Image */}
+      <div 
+        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+        style={{
+          backgroundImage: "url('/vecteezy_paddy-rice-and-rice-seed-in-farm-organic-rice-field-and_3334408.jpg')",
+          opacity: 0.3
+        }}
+      />
+      
+      {/* Login Form */}
+      <div className="bg-white/95 backdrop-blur-sm shadow-2xl rounded-2xl p-8 w-full max-w-md relative z-10">
         <h2 className="text-3xl font-bold text-green-700 mb-2 text-center">Login</h2>
         <p className="text-center text-gray-600 mb-6">Welcome back to Vital Dashboard</p>
         
@@ -134,27 +118,6 @@ const Login = () => {
             {isLoading ? 'Logging in...' : 'Login'}
           </button>
         </form>
-        
-        {/* Quick Demo Login Buttons */}
-        <div className="mt-6 space-y-3">
-          <p className="text-center text-gray-600 text-sm font-medium">Quick Demo Login</p>
-          <div className="grid grid-cols-2 gap-3">
-            <button 
-              onClick={() => handleDemoLogin('district')}
-              className="bg-green-600 text-white py-2 px-4 rounded-lg text-sm hover:bg-green-700 transition-colors"
-              type="button"
-            >
-              Login as District Officer
-            </button>
-            <button 
-              onClick={() => handleDemoLogin('village')}
-              className="bg-green-600 text-white py-2 px-4 rounded-lg text-sm hover:bg-green-700 transition-colors"
-              type="button"
-            >
-              Login as Village Officer
-            </button>
-          </div>
-        </div>
         
         <div className="mt-6 text-center text-gray-500 text-sm">
           Forgot your password? <a href="#" className="text-green-600 hover:underline">Reset here</a>

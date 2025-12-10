@@ -84,6 +84,17 @@ const VillageOverview = () => {
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8">
+          <div className="flex items-center gap-4 mb-4">
+            <button
+              onClick={() => navigate(-1)}
+              className="p-2 hover:bg-green-100 rounded-lg transition-colors"
+              title="Back"
+            >
+              <svg className="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+              </svg>
+            </button>
+          </div>
           <h1 className="text-responsive-4xl font-bold text-green-700 mb-2">Village Overview</h1>
           <p className="text-responsive-lg text-gray-600">Rampur Village</p>
         </div>

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import './index.css'
 import FarmersList from './pages/villageofficer/FarmersList'
 import FarmerDetail from './pages/villageofficer/FarmerDetail'
@@ -23,15 +23,42 @@ import Overview from './pages/Overview'
 import Issues from './pages/Issues'
 import GodownDetails from './pages/GodownDetails'
 import Merchants from './pages/Merchants'
+// District Officer Pages
+import DistrictFarmers from './pages/districtofficer/DistrictFarmers'
+import DistrictDealers from './pages/districtofficer/DistrictDealers'
+import DistrictGodowns from './pages/districtofficer/DistrictGodowns'
+import DistrictMerchants from './pages/districtofficer/DistrictMerchants'
+import DistrictIssues from './pages/districtofficer/DistrictIssues'
+import DistrictOfficers from './pages/districtofficer/DistrictOfficers'
+import TaskUpdate from './pages/villageofficer/TaskUpdate'
+import SeedDataPage from './pages/SeedDataPage'
 
 function App() {
   const { isAuthenticated, user } = useAuthStore();
+
+  useEffect(() => {
+    // Clear stale auth data from localStorage on app load
+    const storedAuth = localStorage.getItem('auth-storage');
+    if (storedAuth) {
+      try {
+        const parsedAuth = JSON.parse(storedAuth);
+        // If user has "District Officer" as name (old cached data), clear it
+        if (parsedAuth.state?.user?.name === 'District Officer') {
+          localStorage.removeItem('auth-storage');
+          window.location.reload();
+        }
+      } catch (e) {
+        // Ignore parse errors
+      }
+    }
+  }, []);
 
   return (
     <div>
       <Routes>
         {/* Public Routes */}
         <Route path="/login" element={<Login />} />
+        <Route path="/seed-data" element={<SeedDataPage />} />
         
         {/* New Dashboard Routes with Sidebar */}
         <Route path="/overview" element={
@@ -74,15 +101,24 @@ function App() {
             allowedRoles={['district', 'village']} 
           />
         } />
-        
-        {/* District Officer Routes - Keep existing ones with Navbar */}
-        <Route path="/" element={
+        <Route path="/task-update" element={
           <ProtectedRoute 
             element={
-              <>
-                <Navbar />
+              <DashboardLayout>
+                <TaskUpdate />
+              </DashboardLayout>
+            } 
+            allowedRoles={['village']} 
+          />
+        } />
+        
+        {/* District Officer Routes - Using DashboardLayout */}
+        <Route path="/district-dashboard" element={
+          <ProtectedRoute 
+            element={
+              <DashboardLayout>
                 <DistrictDashboard />
-              </>
+              </DashboardLayout>
             } 
             allowedRoles={['district']} 
           />
@@ -90,10 +126,9 @@ function App() {
         <Route path="/village-list" element={
           <ProtectedRoute 
             element={
-              <>
-                <Navbar />
+              <DashboardLayout>
                 <VillageList />
-              </>
+              </DashboardLayout>
             } 
             allowedRoles={['district']} 
           />
@@ -101,10 +136,69 @@ function App() {
         <Route path="/village-detail" element={
           <ProtectedRoute 
             element={
-              <>
-                <Navbar />
+              <DashboardLayout>
                 <VillageDetail />
-              </>
+              </DashboardLayout>
+            } 
+            allowedRoles={['district']} 
+          />
+        } />
+        <Route path="/district-farmers" element={
+          <ProtectedRoute 
+            element={
+              <DashboardLayout>
+                <DistrictFarmers />
+              </DashboardLayout>
+            } 
+            allowedRoles={['district']} 
+          />
+        } />
+        <Route path="/district-dealers" element={
+          <ProtectedRoute 
+            element={
+              <DashboardLayout>
+                <DistrictDealers />
+              </DashboardLayout>
+            } 
+            allowedRoles={['district']} 
+          />
+        } />
+        <Route path="/district-issues" element={
+          <ProtectedRoute 
+            element={
+              <DashboardLayout>
+                <DistrictIssues />
+              </DashboardLayout>
+            } 
+            allowedRoles={['district']} 
+          />
+        } />
+        <Route path="/district-godowns" element={
+          <ProtectedRoute 
+            element={
+              <DashboardLayout>
+                <DistrictGodowns />
+              </DashboardLayout>
+            } 
+            allowedRoles={['district']} 
+          />
+        } />
+        <Route path="/district-merchants" element={
+          <ProtectedRoute 
+            element={
+              <DashboardLayout>
+                <DistrictMerchants />
+              </DashboardLayout>
+            } 
+            allowedRoles={['district']} 
+          />
+        } />
+        <Route path="/district-officers" element={
+          <ProtectedRoute 
+            element={
+              <DashboardLayout>
+                <DistrictOfficers />
+              </DashboardLayout>
             } 
             allowedRoles={['district']} 
           />
@@ -112,10 +206,9 @@ function App() {
         <Route path="/district-issue" element={
           <ProtectedRoute 
             element={
-              <>
-                <Navbar />
+              <DashboardLayout>
                 <DistrictIssue />
-              </>
+              </DashboardLayout>
             } 
             allowedRoles={['district']} 
           />
@@ -123,10 +216,9 @@ function App() {
         <Route path="/district-issue-detail" element={
           <ProtectedRoute 
             element={
-              <>
-                <Navbar />
+              <DashboardLayout>
                 <DistrictIssueDetail />
-              </>
+              </DashboardLayout>
             } 
             allowedRoles={['district']} 
           />
@@ -217,7 +309,11 @@ function App() {
         {/* Redirect all other routes */}
         <Route path="*" element={
           isAuthenticated ? (
-            <Navigate to="/overview" replace />
+            user?.role === 'district' ? (
+              <Navigate to="/district-dashboard" replace />
+            ) : (
+              <Navigate to="/village-dashboard" replace />
+            )
           ) : (
             <Navigate to="/login" replace />
           )
