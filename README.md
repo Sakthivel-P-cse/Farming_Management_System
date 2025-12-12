@@ -3,13 +3,6 @@
 
 # Farming Management System
 
-<p align="center">
-	<img src="https://cdn.pixabay.com/photo/2017/01/20/00/30/agriculture-1990280_1280.jpg" alt="Farming Field" width="350"/>
-</p>
-
-<p align="center">
-	<img src="https://cdn.pixabay.com/photo/2016/11/29/09/32/tractor-1868578_1280.jpg" alt="Tractor in Field" width="300"/>
-</p>
 
 
 
